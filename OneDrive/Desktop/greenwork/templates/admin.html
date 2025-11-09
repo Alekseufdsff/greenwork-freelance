@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - GreenWork</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            animation: fadeIn 1s ease;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-gray);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .admin-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 968px) {
+            .admin-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .requests-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .request-item {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .request-item:hover {
+            border-color: var(--primary);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .request-user {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .request-amount {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .request-details {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .request-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        .request-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .status-pending { background: rgba(255, 165, 0, 0.2); color: var(--warning); }
+        .status-paid { background: rgba(0, 255, 0, 0.2); color: var(--success); }
+        .status-rejected { background: rgba(255, 0, 0, 0.2); color: var(--error); }
+
+        .request-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--bg-dark);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn-error {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-error:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .user-management {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .user-card {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            border-color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .user-role {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .user-balance {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .balance-input {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 0.7rem;
+            color: var(--text-light);
+            width: 120px;
+            text-align: center;
+        }
+
+        .balance-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .no-requests {
+            text-align: center;
+            color: var(--text-gray);
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .admin-badge {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Навбар -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">💼 GreenWork</div>
+            <div class="nav-links">
+                <span class="admin-badge">👑 АДМИНИСТРАТОР</span>
+                <a href="/dashboard" class="nav-link">📊 Дашборд</a>
+                <a href="/tasks" class="nav-link">🔧 Задания</a>
+                <a href="/logout" class="nav-link">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="page-header">
+            <h1 class="page-title">🛠️ Панель администратора</h1>
+            <p class="page-subtitle">Управление пользователями, выплатами и системой</p>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_users }}</div>
+                <div class="stat-label">Всего пользователей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_withdrawals }}</div>
+                <div class="stat-label">Всего заявок</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.pending_requests }}</div>
+                <div class="stat-label">Ожидают выплаты</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_processed }}</div>
+                <div class="stat-label">Выплачено</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_earned_all }} ₽</div>
+                <div class="stat-label">Общий оборот</div>
+            </div>
+        </div>
+
+        <!-- Основные секции -->
+        <div class="admin-sections">
+            <!-- Секция заявок на вывод -->
+            <div class="section-card">
+                <h2 class="section-title">📋 Заявки на вывод</h2>
+                
+                <div class="filters">
+                    <button class="filter-btn active" onclick="filterRequests('all')">Все</button>
+                    <button class="filter-btn" onclick="filterRequests('pending')">Ожидают</button>
+                    <button class="filter-btn" onclick="filterRequests('paid')">Выплачено</button>
+                    <button class="filter-btn" onclick="filterRequests('rejected')">Отклонено</button>
+                </div>
+
+                <div class="requests-list" id="requestsList">
+                    {% if requests %}
+                        {% for request in requests %}
+                        <div class="request-item" data-status="{{ request.status }}">
+                            <div class="request-header">
+                                <div class="request-user">👤 {{ request.user_id }}</div>
+                                <div class="request-amount">{{ request.amount }} ₽</div>
+                            </div>
+                            
+                            <div class="request-details">
+                                <div>💳 {{ request.payment_method|upper }} • {{ request.card_number }}</div>
+                                <div>👤 {{ request.card_holder }}</div>
+                                <div>📧 {{ request.contact_email }}</div>
+                            </div>
+
+                            <div class="request-meta">
+                                <div>📅 {{ request.created_at }}</div>
+                                <div class="request-status status-{{ request.status }}">
+                                    {% if request.status == 'pending' %}⏳ Ожидает
+                                    {% elif request.status == 'paid' %}✅ Выплачено
+                                    {% else %}❌ Отклонено
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if request.status == 'pending' %}
+                            <div class="request-actions">
+                                <button class="btn btn-success" 
+                                        onclick="processRequest({{ request.id }}, 'paid')">
+                                    ✅ Выплачено
+                                </button>
+                                <button class="btn btn-error" 
+                                        onclick="processRequest({{ request.id }}, 'rejected')">
+                                    ❌ Отклонить
+                                </button>
+                            </div>
+                            {% endif %}
+
+                            {% if request.processed_at %}
+                            <div class="request-meta">
+                                <div>🕒 Обработано: {{ request.processed_at }}</div>
+                                <div>👨‍💼 {{ request.processed_by }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-requests">
+                            📭 Нет заявок на вывод средств
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Секция управления пользователями -->
+            <div class="section-card">
+                <h2 class="section-title">👥 Управление пользователями</h2>
+                
+                <div class="user-management">
+                    {% for username, user_data in users.items() %}
+                    <div class="user-card">
+                        <div class="user-info">
+                            <div class="user-name">
+                                {% if user_data.role == 'admin' %}👑 {% else %}👤 {% endif %}
+                                {{ username }}
+                            </div>
+                            <div class="user-role">
+                                {{ user_data.email }} • 
+                                {% if user_data.role == 'admin' %}Администратор
+                                {% else %}Пользователь
+                                {% endif %}
+                                • Заданий: {{ user_data.completed_tasks }}
+                            </div>
+                        </div>
+                        
+                        <div class="user-balance">
+                            <input type="number" 
+                                   class="balance-input" 
+                                   id="balance-{{ username }}" 
+                                   value="{{ user_data.balance }}"
+                                   min="0">
+                            <button class="btn btn-secondary" 
+                                    onclick="updateBalance('{{ username }}')">
+                                💾 Обновить
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div id="balanceMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - GreenWork</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .action-description {
+            color: var(--text-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Модальное окно вывода */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid #333;
+            max-width: 500px;
+            width: 90%;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translate(-50%, -60%); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .payment-method {
+            background: #2a2a2a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: var(--primary);
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary);
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .method-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .method-name {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .min-amount {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .processing-info {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff4444;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навбар -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">💼 GreenWork</div>
+            <div class="user-menu">
+                <span>👤 {{ user.username }}</span>
+                <a href="/logout" class="btn btn-secondary">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container">
+        <!-- Приветствие -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Добро пожаловать, {{ user.username }}! 👋</h1>
+            <p style="color: var(--text-gray);">Управляйте своими финансами и находите новые задания</p>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">{{ user.balance }} ₽</div>
+                <div class="stat-label">Текущий баланс</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">{{ user.completed_tasks }}</div>
+                <div class="stat-label">Выполнено заданий</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value">{{ user.total_earned }} ₽</div>
+                <div class="stat-label">Всего заработано</div>
+            </div>
+        </div>
+
+        <!-- Действия -->
+        <div class="actions-grid">
+            <div class="action-card" onclick="window.location.href='/tasks'">
+                <div class="action-icon">🔧</div>
+                <h3 class="action-title">Выполнить задания</h3>
+                <p class="action-description">Доступно 100+ заданий от AI ботов</p>
+                <button class="btn btn-primary">Начать зарабатывать</button>
+            </div>
+
+            <div class="action-card" onclick="showWithdrawalModal()">
+                <div class="action-icon">💸</div>
+                <h3 class="action-title">Вывод средств</h3>
+                <p class="action-description">Выведите заработанные деньги на карту</p>
+                <button class="btn btn-primary">Заказать выплату</button>
+            </div>
+
+            {% if session.role == 'admin' %}
+            <div class="action-card" onclick="window.location.href='/admin'">
+                <div class="action-icon">🛠️</div>
+                <h3 class="action-title">Админ-панель</h3>
+                <p class="action-description">Управление пользователями и выплатами</p>
+                <button class="btn btn-primary">Перейти в админку</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Модальное окно вывода -->
+    <div id="withdrawalModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeWithdrawalModal()">×</button>
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">💳 Вывод средств</h2>
+            
+            <div class="min-amount">Минимальная сумма: 6,000 ₽</div>
+
+            <form id="withdrawalForm">
+                <div class="form-group">
+                    <label class="form-label">Сумма вывода (₽)</label>
+                    <input type="number" class="form-input" id="amount" name="amount" min="6000" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Способ выплаты</label>
+                    <div class="payment-methods" id="paymentMethods">
+                        {% for method in payment_methods %}
+                        <div class="payment-method" data-method="{{ method.id }}">
+                            <div class="method-icon">{{ method.icon }}</div>
+                            <div class="method-name">{{ method.name }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="payment_method" name="payment_method" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Номер карты/кошелька</label>
+                    <input type="text" class="form-input" id="card_number" name="card_number" placeholder="0000 0000 0000 0000" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Имя и фамилия владельца</label>
+                    <input type="text" class="form-input" id="card_holder" name="card_holder" placeholder="IVAN IVANOV" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    📨 Отправить заявку
+                </button>
+            </form>
+
+            <div class="processing-info">
+                ⏳ Обработка заявки занимает до 7 рабочих дней
+            </div>
+
+            <div id="withdrawalMessage"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

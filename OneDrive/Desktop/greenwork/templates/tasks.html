@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задания - GreenWork</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+        }
+
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .task-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            flex: 1;
+        }
+
+        .task-reward {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .task-description {
+            color: var(--text-gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .task-difficulty {
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .difficulty-easy { background: rgba(0, 255, 0, 0.1); color: var(--primary); }
+        .difficulty-medium { background: rgba(255, 165, 0, 0.1); color: orange; }
+        .difficulty-hard { background: rgba(255, 0, 0, 0.1); color: #ff4444; }
+
+        .task-time {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #00ff00, #32cd32);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            margin-top: 1rem;
+            animation: slideUp 0.3s ease;
+        }
+
+        .stats-bar {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+            animation: slideUp 0.4s ease;
+        }
+
+        .stats-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Навбар -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">💼 GreenWork</div>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">📊 Дашборд</a>
+                <a href="/tasks" class="nav-link">🔧 Задания</a>
+                <a href="/logout" class="nav-link">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="page-header">
+            <h1 class="page-title">🔧 Доступные задания</h1>
+            <p class="page-subtitle">Выполняйте задания и зарабатывайте деньги. Новые задания появляются регулярно!</p>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-bar">
+            <div class="stats-content">
+                <div class="stat-item">
+                    <div class="stat-value" id="completedTasks">{{ user.completed_tasks }}</div>
+                    <div class="stat-label">Выполнено заданий</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalEarned">{{ user.total_earned }} ₽</div>
+                    <div class="stat-label">Всего заработано</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="availableTasks">{{ tasks|length }}</div>
+                    <div class="stat-label">Доступно заданий</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сетка заданий -->
+        <div class="tasks-grid">
+            {% for task in tasks %}
+            <div class="task-card" id="task-{{ loop.index }}">
+                <div class="task-header">
+                    <div style="display: flex; align-items: flex-start; flex: 1;">
+                        <div class="task-icon">{{ task.icon }}</div>
+                        <div>
+                            <h3 class="task-title">{{ task.title }}</h3>
+                        </div>
+                    </div>
+                    <div class="task-reward">+{{ task.reward }} ₽</div>
+                </div>
+
+                <p class="task-description">{{ task.description }}</p>
+
+                <div class="task-meta">
+                    <span class="task-difficulty difficulty-{{ task.difficulty }}">
+                        {% if task.difficulty == 'easy' %}👶 Легко
+                        {% elif task.difficulty == 'medium' %}💪 Средне
+                        {% else %}🔥 Сложно
+                        {% endif %}
+                    </span>
+                    <span class="task-time">⏱️ {{ task.time_estimate }}</span>
+                </div>
+
+                <button class="btn btn-primary complete-task" 
+                        data-task-id="{{ loop.index }}"
+                        onclick="completeTask({{ loop.index }}, {{ task.reward }})">
+                    🎯 Выполнить задание
+                </button>
+
+                <div id="task-message-{{ loop.index }}"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
+</body>
+</html>
