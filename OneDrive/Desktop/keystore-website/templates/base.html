@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Магазин ключей и подписок{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">KeyStore</div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Главная</a></li>
+                <li><a href="{{ url_for('products') }}">Продукты</a></li>
+                {% if session.username %}
+                    {% if session.username == 'Aleksey_Mainkraft' %}
+                        <li><a href="{{ url_for('admin_dashboard') }}">Админ-панель</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('profile') }}">Кабинет ({{ session.username }})</a></li>
+                    <li><a href="{{ url_for('logout') }}">Выйти</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Войти</a></li>
+                    <li><a href="{{ url_for('register') }}">Регистрация</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 KeyStore. Все права защищены.</p>
+    </footer>
+
+    <script>
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function activateProduct(productId) {
+            if (confirm('Вы уверены, что хотите активировать этот продукт?')) {
+                alert('Продукт активирован! (функция в разработке)');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить продукт{% endblock %}
+
+{% block content %}
+<section class="admin-form">
+    <h1>Добавить продукт</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="name">Название продукта:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Описание:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="price">Цена (₽):</label>
+            <input type="number" id="price" name="price" step="0.01" min="0" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="product_type">Тип продукта:</label>
+            <select id="product_type" name="product_type" required>
+                <option value="key">Ключ активации</option>
+                <option value="subscription">Подписка</option>
+                <option value="free">Бесплатный товар</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="features">Возможности (каждая с новой строки):</label>
+            <textarea id="features" name="features" rows="6" placeholder="✓ Возможность 1
+✓ Возможность 2
+✓ Возможность 3"></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-admin">Добавить продукт</button>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-outline">Отмена</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

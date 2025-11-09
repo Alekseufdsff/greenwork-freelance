@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Продукты{% endblock %}
+
+{% block content %}
+<section class="products">
+    <h1>Наши продукты</h1>
+    
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-header">
+                <h3>{{ product.name }}</h3>
+                <div class="product-price">
+                    {% if product.price == 0 %}
+                        Бесплатно
+                    {% else %}
+                        {{ "%.2f"|format(product.price) }} ₽
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="product-type">
+                <span class="type-badge {{ product.product_type }}">
+                    {% if product.product_type == 'key' %}
+                        Ключ активации
+                    {% elif product.product_type == 'subscription' %}
+                        Подписка
+                    {% else %}
+                        Бесплатный товар
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="product-description">
+                <p>{{ product.description }}</p>
+            </div>
+            
+            <div class="product-features">
+                <h4>Возможности:</h4>
+                <pre>{{ product.features }}</pre>
+            </div>
+            
+            <div class="product-actions">
+                <button class="btn btn-buy">Купить</button>
+                <button class="btn btn-outline">Подробнее</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

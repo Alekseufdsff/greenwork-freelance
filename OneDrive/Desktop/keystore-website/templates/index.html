@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+<section class="welcome">
+    <h1>Добро пожаловать в KeyStore!</h1>
+    <p>Лучший магазин ключей активации и подписок для всех поколений</p>
+</section>
+
+<section class="news">
+    <h2>Последние новости</h2>
+    {% for news in news_list %}
+    <article class="news-item">
+        <h3>{{ news.title }}</h3>
+        <p>{{ news.content }}</p>
+        <small>Опубликовано: {{ news.created_at.strftime('%d.%m.%Y') }}</small>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

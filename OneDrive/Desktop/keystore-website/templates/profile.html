@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<section class="profile">
+    <h1>Личный кабинет</h1>
+    <p>Добро пожаловать, <strong>{{ user.username }}</strong>!</p>
+
+    <div class="profile-info">
+        <h2>Ваши данные:</h2>
+        <p><strong>Никнейм:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Дата регистрации:</strong> {{ user.created_at.strftime('%d.%m.%Y') }}</p>
+    </div>
+
+    <div class="profile-actions">
+        <h2>Действия:</h2>
+        <button class="btn" onclick="showModal('passwordModal')">Сменить пароль</button>
+        <button class="btn" onclick="showModal('activateKeyModal')">Активировать ключ</button>
+        <button class="btn">Скачать лаунчер</button>
+        <a href="{{ url_for('products') }}" class="btn">Магазин продуктов</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+    </div>
+
+    <div class="profile-sections">
+        <h2>Мои товары</h2>
+        {% if user_products %}
+            <div class="user-products">
+                {% for user_product in user_products %}
+                <div class="product-item">
+                    <h4>{{ user_product.product.name }}</h4>
+                    <p>Куплен: {{ user_product.purchased_at.strftime('%d.%m.%Y') }}</p>
+                    {% if user_product.activation_key %}
+                        <p>Ключ: <code>{{ user_product.activation_key if user_product.is_activated else "***Активируйте для просмотра***" }}</code></p>
+                        {% if not user_product.is_activated %}
+                            <button class="btn btn-small" onclick="activateProduct({{ user_product.id }})">Активировать</button>
+                        {% else %}
+                            <span class="status activated">Активирован</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>У вас пока нет покупок. <a href="{{ url_for('products') }}">Посетите магазин</a>.</p>
+        {% endif %}
+
+        <h2>Оплата подписки</h2>
+        <p>Система оплаты находится в разработке. Скоро здесь можно будет оплатить подписку.</p>
+    </div>
+</section>
+
+<!-- Модальные окна -->
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('passwordModal')">&times;</span>
+        <h3>Смена пароля</h3>
+        <p>Функция находится в разработке</p>
+    </div>
+</div>
+
+<div id="activateKeyModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('activateKeyModal')">&times;</span>
+        <h3>Активация ключа</h3>
+        <p>Функция находится в разработке</p>
+    </div>
+</div>
+{% endblock %}

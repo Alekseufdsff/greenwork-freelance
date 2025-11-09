@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+<section class="admin-dashboard">
+    <h1>Админ-панель</h1>
+    <p>Добро пожаловать, <strong>Aleksey_Mainkraft</strong>!</p>
+    
+    <div class="admin-stats">
+        <div class="stat-card">
+            <h3>Пользователи</h3>
+            <div class="stat-number">{{ stats.users_count }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Продукты</h3>
+            <div class="stat-number">{{ stats.products_count }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Новости</h3>
+            <div class="stat-number">{{ stats.news_count }}</div>
+        </div>
+    </div>
+    
+    <div class="admin-actions">
+        <h2>Быстрые действия</h2>
+        <div class="action-buttons">
+            <a href="{{ url_for('admin_news') }}" class="btn btn-admin">Управление новостями</a>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-admin">Управление продуктами</a>
+            <a href="{{ url_for('admin_add_news') }}" class="btn btn-admin">Добавить новость</a>
+            <a href="{{ url_for('admin_add_product') }}" class="btn btn-admin">Добавить продукт</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Управление новостями{% endblock %}
+
+{% block content %}
+<section class="admin-news">
+    <h1>Управление новостями</h1>
+    
+    <div class="admin-header">
+        <a href="{{ url_for('admin_add_news') }}" class="btn btn-admin">Добавить новость</a>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Назад в админку</a>
+    </div>
+    
+    <div class="news-list">
+        {% for news in news_list %}
+        <div class="news-item admin-news-item">
+            <h3>{{ news.title }}</h3>
+            <p>{{ news.content }}</p>
+            <div class="news-meta">
+                <small>Опубликовано: {{ news.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                <div class="news-actions">
+                    <button class="btn btn-small">Редактировать</button>
+                    <button class="btn btn-small btn-danger">Удалить</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
